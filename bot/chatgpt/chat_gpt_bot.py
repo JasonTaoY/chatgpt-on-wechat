@@ -27,11 +27,12 @@ class ChatGPTBot(Bot, OpenAIImage):
         if conf().get("open_ai_api_base"):
             openai.api_base = conf().get("open_ai_api_base")
         proxy = conf().get("proxy")
+
         if proxy:
             openai.proxy = proxy
         if conf().get("rate_limit_chatgpt"):
             self.tb4chatgpt = TokenBucket(conf().get("rate_limit_chatgpt", 20))
-
+        self.algorithmia_url = conf().get("algorithmia_url")
         self.sessions = SessionManager(ChatGPTSession, model=conf().get("model") or "gpt-3.5-turbo")
         self.args = {
             "model": conf().get("model") or "gpt-3.5-turbo",  # 对话模型的名称
@@ -127,7 +128,7 @@ class ChatGPTBot(Bot, OpenAIImage):
                 "message": str(session.messages[1]["content"]),
                 "history": []
             })
-            url = "http://localhost:8000/api/chat"
+            url = f"{self.algorithmia_url}/api/chat"
 
             headers = {
                 'Content-Type': 'application/json'
